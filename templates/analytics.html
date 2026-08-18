@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block title %}
+Analytics | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- =====================================================
+     PAGE HEADER
+     ===================================================== -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>📈 Operational Analytics</h1>
+
+        <p>
+            Warehouse performance, order trends and
+            smart recommendations.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ANALYTICS SUMMARY
+     ===================================================== -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Total Orders</h3>
+
+        <div class="number">
+
+            {{ total_orders }}
+
+        </div>
+
+        <p>
+            Orders processed by warehouse
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Completed Orders</h3>
+
+        <div class="number">
+
+            {{ completed_orders }}
+
+        </div>
+
+        <p>
+            Successfully dispatched
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Pending Orders</h3>
+
+        <div class="number">
+
+            {{ pending_orders }}
+
+        </div>
+
+        <p>
+            Orders still in workflow
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Low Stock Items</h3>
+
+        <div class="number">
+
+            {{ low_stock_count }}
+
+        </div>
+
+        <p>
+            Products requiring attention
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER STATUS
+     ===================================================== -->
+
+<div class="analytics-grid">
+
+
+    <div class="content-card">
+
+        <h2>📊 Orders by Status</h2>
+
+        <p>
+            Current fulfillment stage of warehouse orders.
+        </p>
+
+
+        {% for item in status %}
+
+        <div class="analytics-row">
+
+            <span>
+
+                {{ item.status }}
+
+            </span>
+
+
+            <strong>
+
+                {{ item.count }}
+
+            </strong>
+
+        </div>
+
+        {% else %}
+
+        <p style="margin-top: 15px;">
+
+            No order status data available.
+
+        </p>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- =================================================
+         PRIORITY
+         ================================================= -->
+
+    <div class="content-card">
+
+        <h2>🎯 Orders by Priority</h2>
+
+        <p>
+            Priority distribution of warehouse orders.
+        </p>
+
+
+        {% for item in priority %}
+
+        <div class="analytics-row">
+
+            <span>
+
+                {% if item.priority == "Urgent" %}
+
+                    🔴
+
+                {% elif item.priority == "High" %}
+
+                    🟠
+
+                {% elif item.priority == "Medium" %}
+
+                    🟡
+
+                {% else %}
+
+                    🟢
+
+                {% endif %}
+
+                {{ item.priority }}
+
+            </span>
+
+
+            <strong>
+
+                {{ item.count }}
+
+            </strong>
+
+        </div>
+
+        {% else %}
+
+        <p style="margin-top: 15px;">
+
+            No priority data available.
+
+        </p>
+
+        {% endfor %}
+
+    </div>
+
+
+</div>
+
+
+<!-- =====================================================
+     SMART REORDER RECOMMENDATIONS
+     ===================================================== -->
+
+<div class="content-card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>
+                🤖 Smart Reorder Recommendations
+            </h2>
+
+            <p>
+                System-generated inventory decisions based
+                on stock levels.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% for item in recommendations %}
+
+    <div class="recommendation">
+
+        <div>
+
+            <strong>
+
+                {{ item.name }}
+
+            </strong>
+
+            <p>
+
+                Usable Stock:
+                <strong>
+                    {{ item.usable }}
+                </strong>
+
+                |
+
+                Reorder Level:
+                <strong>
+                    {{ item.reorder_level }}
+                </strong>
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+
+                📦 Order
+                {{ item.suggested }}
+                units
+
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="alert alert-success">
+
+        ✅ No reorder recommendations currently.
+
+        <p style="margin-top: 5px;">
+
+            Current inventory levels are healthy.
+
+        </p>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+<!-- =====================================================
+     BOTTLENECK IDENTIFICATION
+     ===================================================== -->
+
+<div class="content-card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>🚨 Operational Bottlenecks</h2>
+
+            <p>
+                Areas that may require warehouse attention.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <div>
+
+            <h3>📦 Inventory</h3>
+
+            <p style="margin-top: 8px;">
+
+                Low-stock products can cause fulfillment
+                delays and stockouts.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>👷 Picking</h3>
+
+            <p style="margin-top: 8px;">
+
+                Large picking queues may indicate
+                warehouse processing delays.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>🚚 Dispatch</h3>
+
+            <p style="margin-top: 8px;">
+
+                Orders waiting after quality check may
+                indicate a dispatch bottleneck.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SMART DECISION ENGINE
+     ===================================================== -->
+
+<div class="content-card">
+
+    <div class="card-header">
+
+        <h2>🧠 Smart Warehouse Decision Engine</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <div>
+
+            <h3>1️⃣ Monitor</h3>
+
+            <p style="margin-top: 8px;">
+
+                Continuously monitor inventory and
+                order operations.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>2️⃣ Analyze</h3>
+
+            <p style="margin-top: 8px;">
+
+                Identify shortages, priority orders
+                and operational bottlenecks.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>3️⃣ Recommend</h3>
+
+            <p style="margin-top: 8px;">
+
+                Generate actions such as reorder,
+                allocate, prioritize or investigate.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+{% endblock %}

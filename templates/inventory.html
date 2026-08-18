@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block title %}
+Inventory | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>📊 Inventory Management</h1>
+
+        <p>
+            Monitor stock levels, damaged items and
+            low-stock alerts.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     LOW STOCK ALERT
+     ===================================================== -->
+
+{% if low %}
+
+<div class="alert alert-warning">
+
+    <strong>⚠️ Low Stock Alert</strong>
+
+    <p style="margin-top: 5px;">
+
+        {{ low|length }}
+        product(s) require inventory attention.
+
+    </p>
+
+</div>
+
+{% else %}
+
+<div class="alert alert-success">
+
+    <strong>✅ Inventory Healthy</strong>
+
+    <p style="margin-top: 5px;">
+
+        No products are currently below
+        their reorder level.
+
+    </p>
+
+</div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     INVENTORY TABLE
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>📦 Current Inventory</h2>
+
+            <p>
+                Real-time warehouse stock overview.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Product ID</th>
+
+                    <th>Product Name</th>
+
+                    <th>Location</th>
+
+                    <th>Total Stock</th>
+
+                    <th>Damaged</th>
+
+                    <th>Usable Stock</th>
+
+                    <th>Reorder Level</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in inventory %}
+
+                <tr>
+
+                    <!-- PRODUCT ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.product_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- PRODUCT NAME -->
+
+                    <td>
+
+                        {{ item.name }}
+
+                    </td>
+
+
+                    <!-- LOCATION -->
+
+                    <td>
+
+                        📍 {{ item.location_id }}
+
+                    </td>
+
+
+                    <!-- TOTAL STOCK -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.quantity }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- DAMAGED -->
+
+                    <td>
+
+                        {% if item.damaged > 0 %}
+
+                            <span class="priority-urgent">
+
+                                ⚠️ {{ item.damaged }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span>
+
+                                0
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- USABLE STOCK -->
+
+                    <td>
+
+                        {% set usable =
+                            item.quantity - item.damaged
+                        %}
+
+                        <strong>
+
+                            {{ usable }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- REORDER LEVEL -->
+
+                    <td>
+
+                        {{ item.reorder_level }}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% set usable =
+                            item.quantity - item.damaged
+                        %}
+
+
+                        {% if usable <= 0 %}
+
+                            <span class="badge status-danger">
+
+                                ❌ Out of Stock
+
+                            </span>
+
+
+                        {% elif usable <= item.reorder_level %}
+
+                            <span class="badge status-danger">
+
+                                ⚠️ Low Stock
+
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="badge status-dispatched">
+
+                                ✅ In Stock
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="8"
+                        style="text-align: center;">
+
+                        No inventory data available.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     LOW STOCK PRODUCTS
+     ===================================================== -->
+
+{% if low %}
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>⚠️ Products Requiring Reorder</h2>
+
+            <p>
+                These products have reached their
+                reorder threshold.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+
+                    <th>Usable Stock</th>
+
+                    <th>Reorder Level</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in low %}
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            {{ item.name }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="priority-urgent">
+
+                            {{ item.usable }}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        {{ item.reorder_level }}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="badge status-picking">
+
+                            🤖 Reorder Recommended
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     INVENTORY DECISION INFORMATION
+     ===================================================== -->
+
+<div class="grid-3">
+
+
+    <div class="card">
+
+        <h3>📦 Stock Monitoring</h3>
+
+        <p style="margin-top: 10px;">
+
+            The system continuously checks available
+            inventory against reorder levels.
+
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>⚠️ Exception Detection</h3>
+
+        <p style="margin-top: 10px;">
+
+            Damaged stock is separated from usable
+            inventory to prevent incorrect allocation.
+
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>🤖 Smart Decision</h3>
+
+        <p style="margin-top: 10px;">
+
+            Low-stock products are automatically
+            identified for reorder recommendations.
+
+        </p>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

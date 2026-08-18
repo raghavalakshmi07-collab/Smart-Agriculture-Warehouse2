@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Warehouse | Dashboard</title>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+
+            <h2>📦 Smart Warehouse</h2>
+
+            <p>Agriculture Supplies</p>
+
+        </div>
+
+
+        <a href="{{ url_for('dashboard') }}"
+           class="active">
+
+            🏠 Dashboard
+
+        </a>
+
+
+        <a href="{{ url_for('products') }}">
+
+            📦 Products
+
+        </a>
+
+
+        <a href="{{ url_for('inventory') }}">
+
+            📊 Inventory
+
+        </a>
+
+
+        <a href="{{ url_for('orders') }}">
+
+            🛒 Orders
+
+        </a>
+
+
+        <a href="{{ url_for('picking') }}">
+
+            👷 Picking
+
+        </a>
+
+
+        <a href="{{ url_for('packing') }}">
+
+            📦 Packing
+
+        </a>
+
+
+        <a href="{{ url_for('dispatch') }}">
+
+            🚚 Dispatch
+
+        </a>
+
+
+        <a href="{{ url_for('exceptions') }}">
+
+            ⚠️ Exceptions
+
+        </a>
+
+
+        <a href="{{ url_for('analytics') }}">
+
+            📈 Analytics
+
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <div class="main-content">
+
+
+        <!-- TOP BAR -->
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>Warehouse Dashboard</h1>
+
+                <p>
+                    Monitor inventory, orders and
+                    warehouse operations
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FLASH MESSAGES
+             ================================================= -->
+
+        {% with messages =
+            get_flashed_messages(
+                with_categories=true
+            )
+        %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="alert alert-{{ category }}">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- =================================================
+             STATISTICS
+             ================================================= -->
+
+        <div class="stats-grid">
+
+
+            <!-- PRODUCTS -->
+
+            <div class="stat-card">
+
+                <h3>Total Products</h3>
+
+                <div class="number">
+
+                    {{ stats.products }}
+
+                </div>
+
+                <p>
+                    Products in warehouse
+                </p>
+
+            </div>
+
+
+            <!-- ORDERS -->
+
+            <div class="stat-card">
+
+                <h3>Total Orders</h3>
+
+                <div class="number">
+
+                    {{ stats.orders }}
+
+                </div>
+
+                <p>
+                    Orders received
+                </p>
+
+            </div>
+
+
+            <!-- PENDING -->
+
+            <div class="stat-card">
+
+                <h3>Pending Orders</h3>
+
+                <div class="number">
+
+                    {{ stats.pending }}
+
+                </div>
+
+                <p>
+                    Orders awaiting completion
+                </p>
+
+            </div>
+
+
+            <!-- LOW STOCK -->
+
+            <div class="stat-card">
+
+                <h3>Low Stock Items</h3>
+
+                <div class="number">
+
+                    {{ stats.low_stock }}
+
+                </div>
+
+                <p>
+                    Reorder attention required
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RECENT ORDERS
+             ================================================= -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>🛒 Recent Orders</h2>
+
+                <a href="{{ url_for('orders') }}"
+                   class="btn">
+
+                    View All
+
+                </a>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Order ID</th>
+
+                            <th>Customer</th>
+
+                            <th>Priority</th>
+
+                            <th>Status</th>
+
+                            <th>Date</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for order in recent %}
+
+                        <tr>
+
+
+                            <!-- ORDER ID -->
+
+                            <td>
+
+                                <strong>
+                                    {{ order.order_id }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- CUSTOMER -->
+
+                            <td>
+
+                                {{ order.customer }}
+
+                            </td>
+
+
+                            <!-- PRIORITY -->
+
+                            <td>
+
+                                {% if order.priority == "Urgent" %}
+
+                                    <span class="priority-urgent">
+                                        🔴 Urgent
+                                    </span>
+
+                                {% elif order.priority == "High" %}
+
+                                    <span class="priority-high">
+                                        🟠 High
+                                    </span>
+
+                                {% elif order.priority == "Medium" %}
+
+                                    <span class="priority-medium">
+                                        🟡 Medium
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="priority-low">
+                                        🟢 Low
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td>
+
+                                {% if order.status == "Created" %}
+
+                                    <span class="badge status-created">
+                                        Created
+                                    </span>
+
+                                {% elif order.status == "Allocated" %}
+
+                                    <span class="badge status-allocated">
+                                        Allocated
+                                    </span>
+
+                                {% elif order.status == "Picking" %}
+
+                                    <span class="badge status-picking">
+                                        Picking
+                                    </span>
+
+                                {% elif order.status == "Picked" %}
+
+                                    <span class="badge status-picked">
+                                        Picked
+                                    </span>
+
+                                {% elif order.status == "Packed" %}
+
+                                    <span class="badge status-packed">
+                                        Packed
+                                    </span>
+
+                                {% elif order.status == "Dispatched" %}
+
+                                    <span class="badge status-dispatched">
+                                        Dispatched
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge">
+                                        {{ order.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- DATE -->
+
+                            <td>
+
+                                {{ order.order_date }}
+
+                            </td>
+
+
+                            <!-- ACTION -->
+
+                            <td>
+
+                                <a
+                                  href="{{ url_for(
+                                      'order_details',
+                                      order_id=order.order_id
+                                  ) }}"
+                                  class="btn">
+
+                                    View
+
+                                </a>
+
+                            </td>
+
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                            <td colspan="6"
+                                style="text-align:center;">
+
+                                No orders available.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             QUICK ACTIONS
+             ================================================= -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>⚡ Quick Actions</h2>
+
+            </div>
+
+
+            <div class="grid-3">
+
+
+                <a
+                  href="{{ url_for('inventory') }}"
+                  class="btn">
+
+                    📊 Check Inventory
+
+                </a>
+
+
+                <a
+                  href="{{ url_for('orders') }}"
+                  class="btn">
+
+                    🛒 Manage Orders
+
+                </a>
+
+
+                <a
+                  href="{{ url_for('analytics') }}"
+                  class="btn">
+
+                    📈 View Analytics
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script
+        src="{{ url_for(
+            'static',
+            filename='js/dashboard.js'
+        ) }}">
+    </script>
+
+
+</body>
+
+</html>

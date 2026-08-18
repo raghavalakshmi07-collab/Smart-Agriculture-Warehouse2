@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<div class="login-page">
+
+    <div class="login-box">
+
+        <!-- LOGO -->
+
+        <div class="logo" style="margin-bottom: 20px;">
+
+            <h2>📦 Smart Warehouse</h2>
+
+            <p>Agriculture Supplies Warehouse</p>
+
+        </div>
+
+
+        <!-- LOGIN TITLE -->
+
+        <h1>Welcome Back 👋</h1>
+
+        <p>
+            Login to manage warehouse operations
+        </p>
+
+
+        <!-- LOGIN FORM -->
+
+        <form method="POST"
+              action="{{ url_for('login') }}">
+
+            <!-- USERNAME -->
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    placeholder="Enter username"
+                    required
+                >
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Enter password"
+                    required
+                >
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="submit"
+                class="btn">
+
+                🔐 Login
+
+            </button>
+
+        </form>
+
+
+        <!-- DEMO LOGIN -->
+
+        <p style="margin-top: 20px; font-size: 12px;">
+
+            Demo Login:
+            <strong>admin / admin</strong>
+
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

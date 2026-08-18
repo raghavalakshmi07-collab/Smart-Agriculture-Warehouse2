@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dispatch | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>🚚 Dispatch Management</h1>
+
+        <p>
+            Manage quality-checked orders and complete
+            the final fulfillment stage.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DISPATCH SUMMARY
+     ===================================================== -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Ready for Dispatch</h3>
+
+        <div class="number">
+            {{ orders|length }}
+        </div>
+
+        <p>
+            Orders ready for shipment
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Quality Checked</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('status', 'equalto', 'Quality Checked')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Passed quality verification
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Urgent</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('priority', 'equalto', 'Urgent')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Dispatch these first
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>🚚</h3>
+
+        <div class="number">
+            Ready
+        </div>
+
+        <p>
+            Shipment processing
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DISPATCH QUEUE
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>🚚 Dispatch Queue</h2>
+
+            <p>
+                Quality-checked orders waiting for dispatch.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order ID</th>
+
+                    <th>Customer</th>
+
+                    <th>Priority</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for order in orders %}
+
+                <tr>
+
+                    <!-- ORDER ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ order.order_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- CUSTOMER -->
+
+                    <td>
+
+                        {{ order.customer }}
+
+                    </td>
+
+
+                    <!-- PRIORITY -->
+
+                    <td>
+
+                        {% if order.priority == "Urgent" %}
+
+                            <span class="priority-urgent">
+                                🔴 Urgent
+                            </span>
+
+                        {% elif order.priority == "High" %}
+
+                            <span class="priority-high">
+                                🟠 High
+                            </span>
+
+                        {% elif order.priority == "Medium" %}
+
+                            <span class="priority-medium">
+                                🟡 Medium
+                            </span>
+
+                        {% else %}
+
+                            <span class="priority-low">
+                                🟢 Low
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if order.status == "Quality Checked" %}
+
+                            <span class="badge status-packed">
+                                ✅ Quality Checked
+                            </span>
+
+                        {% elif order.status == "Dispatched" %}
+
+                            <span class="badge status-dispatched">
+                                🚚 Dispatched
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ order.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        {% if order.status == "Quality Checked" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'update_status',
+                                    order_id=order.order_id,
+                                    status='Dispatched'
+                                ) }}"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success">
+
+                                    🚚 Dispatch Order
+
+                                </button>
+
+                            </form>
+
+
+                        {% elif order.status == "Dispatched" %}
+
+                            <span class="badge status-dispatched">
+
+                                ✅ Completed
+
+                            </span>
+
+
+                        {% else %}
+
+                            <a
+                                href="{{ url_for(
+                                    'order_details',
+                                    order_id=order.order_id
+                                ) }}"
+                                class="btn">
+
+                                View Order
+
+                            </a>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5"
+                        style="text-align: center;">
+
+                        🚚 No orders are currently
+                        ready for dispatch.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DISPATCH WORKFLOW
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🔄 Dispatch Workflow</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <div>
+
+            <h3>1️⃣ Quality Checked</h3>
+
+            <p style="margin-top: 8px;">
+
+                Package has passed the final quality
+                verification.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>2️⃣ Shipment Verification</h3>
+
+            <p style="margin-top: 8px;">
+
+                Verify order ID, customer and
+                package details.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>3️⃣ Dispatch</h3>
+
+            <p style="margin-top: 8px;">
+
+                Release the completed package
+                for shipment.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>4️⃣ Inventory Update</h3>
+
+            <p style="margin-top: 8px;">
+
+                Stock is updated after successful
+                fulfillment.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>5️⃣ Order Complete</h3>
+
+            <p style="margin-top: 8px;">
+
+                Order status changes to
+                Dispatched.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>6️⃣ Track</h3>
+
+            <p style="margin-top: 8px;">
+
+                Dispatch information can be monitored
+                from the dashboard.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SMART DISPATCH DECISION
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🤖 Smart Dispatch Rules</h2>
+
+    </div>
+
+
+    <div class="alert alert-info">
+
+        <strong>
+            Dispatch Decision:
+        </strong>
+
+        <p style="margin-top: 8px;">
+
+            Only orders that have completed
+            <strong>Quality Check</strong> should be
+            dispatched.
+
+            Urgent orders should be given priority
+            when multiple shipments are ready.
+
+        </p>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

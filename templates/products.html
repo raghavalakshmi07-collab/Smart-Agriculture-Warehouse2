@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}
+Products | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>📦 Products</h1>
+
+        <p>
+            Manage all agriculture supplies stored in the warehouse.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- PRODUCT SUMMARY -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Total Products</h3>
+
+        <div class="number">
+            {{ products|length }}
+        </div>
+
+        <p>
+            Products available in warehouse
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Categories</h3>
+
+        <div class="number">
+
+            {{ products
+               |map(attribute='category')
+               |unique
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Different product categories
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Seeds</h3>
+
+        <div class="number">
+
+            {{ products
+               |selectattr('category', 'equalto', 'Seeds')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Seed products
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Fertilizers</h3>
+
+        <div class="number">
+
+            {{ products
+               |selectattr('category', 'equalto', 'Fertilizers')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Fertilizer products
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- PRODUCT TABLE -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>Product Catalogue</h2>
+
+            <p>
+                Complete list of warehouse products.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Product ID</th>
+
+                    <th>Product Name</th>
+
+                    <th>Category</th>
+
+                    <th>Unit</th>
+
+                    <th>Reorder Level</th>
+
+                    <th>Stock Status</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for product in products %}
+
+                <tr>
+
+                    <!-- PRODUCT ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ product.product_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- PRODUCT NAME -->
+
+                    <td>
+
+                        {{ product.name }}
+
+                    </td>
+
+
+                    <!-- CATEGORY -->
+
+                    <td>
+
+                        <span class="badge status-created">
+
+                            {{ product.category }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- UNIT -->
+
+                    <td>
+
+                        {{ product.unit }}
+
+                    </td>
+
+
+                    <!-- REORDER LEVEL -->
+
+                    <td>
+
+                        {{ product.reorder_level }}
+
+                        {{ product.unit }}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        <span class="badge status-dispatched">
+
+                            Active
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="6"
+                        style="text-align: center;">
+
+                        No products found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- PRODUCT INFORMATION -->
+
+<div class="grid-3">
+
+
+    <div class="card">
+
+        <h3>🌱 Seeds</h3>
+
+        <p style="margin-top: 10px;">
+
+            Rice, Cotton and Groundnut seeds
+            for agricultural requirements.
+
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>🧪 Fertilizers</h3>
+
+        <p style="margin-top: 10px;">
+
+            Urea, DAP, Potash and organic
+            fertilizers.
+
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>🛠️ Tools</h3>
+
+        <p style="margin-top: 10px;">
+
+            Sprayers, hoes, watering cans
+            and irrigation equipment.
+
+        </p>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,631 @@
+{% extends "base.html" %}
+
+{% block title %}
+Order Details | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>🛒 Order Details</h1>
+
+        <p>
+            Review order requirements and inventory allocation.
+        </p>
+
+    </div>
+
+    <a href="{{ url_for('orders') }}"
+       class="btn">
+
+        ← Back to Orders
+
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER INFORMATION
+     ===================================================== -->
+
+<div class="grid-3">
+
+    <div class="card">
+
+        <h3>Order ID</h3>
+
+        <p style="font-size: 22px;
+                  font-weight: bold;
+                  margin-top: 10px;">
+
+            {{ order.order_id }}
+
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>Customer</h3>
+
+        <p style="font-size: 18px;
+                  font-weight: bold;
+                  margin-top: 10px;">
+
+            {{ order.customer }}
+
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>Priority</h3>
+
+        <p style="margin-top: 10px;">
+
+            {% if order.priority == "Urgent" %}
+
+                <span class="priority-urgent">
+                    🔴 Urgent
+                </span>
+
+            {% elif order.priority == "High" %}
+
+                <span class="priority-high">
+                    🟠 High
+                </span>
+
+            {% elif order.priority == "Medium" %}
+
+                <span class="priority-medium">
+                    🟡 Medium
+                </span>
+
+            {% else %}
+
+                <span class="priority-low">
+                    🟢 Low
+                </span>
+
+            {% endif %}
+
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER STATUS
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>📌 Current Order Status</h2>
+
+        </div>
+
+        <div>
+
+            {% if order.status == "Created" %}
+
+                <span class="badge status-created">
+                    Created
+                </span>
+
+            {% elif order.status == "Allocated" %}
+
+                <span class="badge status-allocated">
+                    Allocated
+                </span>
+
+            {% elif order.status == "Picking" %}
+
+                <span class="badge status-picking">
+                    Picking
+                </span>
+
+            {% elif order.status == "Picked" %}
+
+                <span class="badge status-picked">
+                    Picked
+                </span>
+
+            {% elif order.status == "Packed" %}
+
+                <span class="badge status-packed">
+                    Packed
+                </span>
+
+            {% elif order.status == "Quality Checked" %}
+
+                <span class="badge status-packed">
+                    Quality Checked
+                </span>
+
+            {% elif order.status == "Dispatched" %}
+
+                <span class="badge status-dispatched">
+                    Dispatched
+                </span>
+
+            {% else %}
+
+                <span class="badge">
+                    {{ order.status }}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER ITEMS + INVENTORY
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>📦 Required Products</h2>
+
+            <p>
+                Compare order quantity with available inventory.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Product</th>
+
+                    <th>Required</th>
+
+                    <th>Available</th>
+
+                    <th>Location</th>
+
+                    <th>Stock Decision</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in items %}
+
+                <tr>
+
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.name }}
+                        </strong>
+
+                        <br>
+
+                        <small>
+                            {{ item.product_id }}
+                        </small>
+
+                    </td>
+
+
+                    <!-- REQUIRED -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.quantity }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- AVAILABLE -->
+
+                    <td>
+
+                        {% if item.available is not none %}
+
+                            {{ item.available }}
+
+                        {% else %}
+
+                            0
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- LOCATION -->
+
+                    <td>
+
+                        {% if item.location_id %}
+
+                            📍 {{ item.location_id }}
+
+                        {% else %}
+
+                            <span class="priority-urgent">
+                                Location unavailable
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- DECISION -->
+
+                    <td>
+
+                        {% if item.available is not none
+                              and item.available >= item.quantity %}
+
+                            <span class="badge status-dispatched">
+
+                                ✅ Stock Available
+
+                            </span>
+
+                        {% elif item.available is not none
+                              and item.available > 0 %}
+
+                            <span class="badge status-picking">
+
+                                ⚠️ Partial Stock
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge status-danger">
+
+                                ❌ Out of Stock
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5"
+                        style="text-align: center;">
+
+                        No products found for this order.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SMART ALLOCATION DECISION
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>🤖 Smart Inventory Allocation</h2>
+
+            <p>
+                The system checks stock before allocating
+                products to this order.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if order.status == "Created" %}
+
+        <div class="alert alert-info">
+
+            <strong>
+                🔍 Inventory Check Required
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                Click the button below to check available
+                stock and allocate inventory for this order.
+
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'allocate',
+                order_id=order.order_id
+            ) }}"
+        >
+
+            <button
+                type="submit"
+                class="btn btn-success">
+
+                ⚡ Check & Allocate Inventory
+
+            </button>
+
+        </form>
+
+
+    {% elif order.status == "Allocated" %}
+
+        <div class="alert alert-success">
+
+            <strong>
+                ✅ Inventory Allocated
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                Required stock has been allocated
+                for this order.
+
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'update_status',
+                order_id=order.order_id,
+                status='Picking'
+            ) }}"
+        >
+
+            <button
+                type="submit"
+                class="btn">
+
+                👷 Start Picking
+
+            </button>
+
+        </form>
+
+
+    {% elif order.status == "Picking" %}
+
+        <div class="alert alert-warning">
+
+            <strong>
+                👷 Picking in Progress
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                Warehouse staff should collect the
+                allocated products from their locations.
+
+            </p>
+
+        </div>
+
+
+    {% elif order.status == "Picked" %}
+
+        <div class="alert alert-success">
+
+            <strong>
+                ✅ Picking Completed
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                All required items have been picked.
+
+            </p>
+
+        </div>
+
+
+    {% elif order.status == "Packed" %}
+
+        <div class="alert alert-info">
+
+            <strong>
+                📦 Order Packed
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                Package is ready for quality checking
+                and dispatch.
+
+            </p>
+
+        </div>
+
+
+    {% elif order.status == "Quality Checked" %}
+
+        <div class="alert alert-success">
+
+            <strong>
+                ✅ Quality Check Completed
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                Order passed the quality check
+                and can be dispatched.
+
+            </p>
+
+        </div>
+
+
+    {% elif order.status == "Dispatched" %}
+
+        <div class="alert alert-success">
+
+            <strong>
+                🚚 Order Dispatched
+            </strong>
+
+            <p style="margin-top: 8px;">
+
+                This order has completed the
+                warehouse fulfillment lifecycle.
+
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =====================================================
+     FULFILLMENT WORKFLOW
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🔄 Fulfillment Workflow</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+        <div>
+
+            <h3>1️⃣ Order Created</h3>
+
+            <p style="margin-top: 8px;">
+                Order received and priority determined.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>2️⃣ Inventory Check</h3>
+
+            <p style="margin-top: 8px;">
+                Available stock is checked before allocation.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>3️⃣ Allocation</h3>
+
+            <p style="margin-top: 8px;">
+                Suitable stock is reserved for the order.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>4️⃣ Picking</h3>
+
+            <p style="margin-top: 8px;">
+                Warehouse staff pick products.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>5️⃣ Packing</h3>
+
+            <p style="margin-top: 8px;">
+                Picked products are packed safely.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>6️⃣ Dispatch</h3>
+
+            <p style="margin-top: 8px;">
+                Completed order is dispatched.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

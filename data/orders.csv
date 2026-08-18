@@ -1,0 +1,11 @@
+order_id,customer,priority,status,order_date
+ORD001,Green Valley Farmers,High,Created,2026-08-18
+ORD002,Sunrise Agro Center,Urgent,Created,2026-08-18
+ORD003,Krishna Farm Supplies,Medium,Created,2026-08-17
+ORD004,Rural Growers Association,High,Allocated,2026-08-17
+ORD005,Fresh Harvest Farms,Low,Picked,2026-08-16
+ORD006,Andhra Agro Traders,Urgent,Packed,2026-08-16
+ORD007,Green Earth Organics,Medium,Quality Checked,2026-08-15
+ORD008,Smart Farmers Cooperative,Low,Dispatched,2026-08-15
+ORD009,Progressive Agriculture,High,Created,2026-08-14
+ORD010,Delta Farm Solutions,Medium,Created,2026-08-14

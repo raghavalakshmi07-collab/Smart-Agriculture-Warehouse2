@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+
+{% block title %}
+Exceptions | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>⚠️ Exception Management</h1>
+
+        <p>
+            Identify warehouse problems and take corrective actions.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     EXCEPTION SUMMARY
+     ===================================================== -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Total Exceptions</h3>
+
+        <div class="number">
+            {{ exceptions|length }}
+        </div>
+
+        <p>
+            Issues detected
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Damaged Items</h3>
+
+        <div class="number">
+
+            {{ exceptions
+               |selectattr('type', 'equalto', 'Damaged')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Damaged stock reported
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Missing Items</h3>
+
+        <div class="number">
+
+            {{ exceptions
+               |selectattr('type', 'equalto', 'Missing')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Missing products
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Action Required</h3>
+
+        <div class="number">
+            ⚠️
+        </div>
+
+        <p>
+            Review exceptions
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     EXCEPTION TABLE
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>🚨 Active Exceptions</h2>
+
+            <p>
+                Warehouse issues requiring attention.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Exception ID</th>
+
+                    <th>Order ID</th>
+
+                    <th>Product</th>
+
+                    <th>Type</th>
+
+                    <th>Quantity</th>
+
+                    <th>Description</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in exceptions %}
+
+                <tr>
+
+
+                    <!-- EXCEPTION ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ item.exception_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- ORDER ID -->
+
+                    <td>
+
+                        {{ item.order_id }}
+
+                    </td>
+
+
+                    <!-- PRODUCT -->
+
+                    <td>
+
+                        {{ item.product }}
+
+                    </td>
+
+
+                    <!-- TYPE -->
+
+                    <td>
+
+                        {% if item.type == "Damaged" %}
+
+                            <span class="priority-urgent">
+
+                                🔴 Damaged
+
+                            </span>
+
+                        {% elif item.type == "Missing" %}
+
+                            <span class="priority-high">
+
+                                🟠 Missing
+
+                            </span>
+
+                        {% elif item.type == "Shortage" %}
+
+                            <span class="priority-medium">
+
+                                🟡 Shortage
+
+                            </span>
+
+                        {% else %}
+
+                            <span>
+
+                                ⚠️ {{ item.type }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- QUANTITY -->
+
+                    <td>
+
+                        {{ item.quantity }}
+
+                    </td>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <td>
+
+                        {{ item.description }}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if item.status == "Resolved" %}
+
+                            <span class="badge status-dispatched">
+
+                                ✅ Resolved
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge status-danger">
+
+                                ⚠️ Open
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="7"
+                        style="text-align: center;">
+
+                        🎉 No exceptions found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     EXCEPTION HANDLING RULES
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🧠 Exception → Decision → Resolution</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <!-- DAMAGED -->
+
+        <div>
+
+            <h3>🔴 Damaged Item</h3>
+
+            <p style="margin-top: 8px;">
+
+                <strong>Decision:</strong>
+                Remove damaged quantity from usable stock.
+
+            </p>
+
+            <p style="margin-top: 5px;">
+
+                <strong>Resolution:</strong>
+                Record the damaged item and prevent it
+                from being allocated.
+
+            </p>
+
+        </div>
+
+
+        <!-- MISSING -->
+
+        <div>
+
+            <h3>🟠 Missing Item</h3>
+
+            <p style="margin-top: 8px;">
+
+                <strong>Decision:</strong>
+                Stop fulfillment until the item is located.
+
+            </p>
+
+            <p style="margin-top: 5px;">
+
+                <strong>Resolution:</strong>
+                Search warehouse location or reallocate
+                stock from another location.
+
+            </p>
+
+        </div>
+
+
+        <!-- SHORTAGE -->
+
+        <div>
+
+            <h3>🟡 Stock Shortage</h3>
+
+            <p style="margin-top: 8px;">
+
+                <strong>Decision:</strong>
+                Allocate available quantity based on
+                order priority.
+
+            </p>
+
+            <p style="margin-top: 5px;">
+
+                <strong>Resolution:</strong>
+                Recommend replenishment or partial
+                fulfillment.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SMART EXCEPTION SYSTEM
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🤖 Smart Exception Handling</h2>
+
+    </div>
+
+
+    <div class="alert alert-info">
+
+        <strong>
+            System Decision:
+        </strong>
+
+        <p style="margin-top: 8px;">
+
+            When an exception occurs, the system should
+            identify the problem, evaluate its impact,
+            recommend an action and track the resolution.
+
+        </p>
+
+    </div>
+
+
+    <div class="grid-3"
+         style="margin-top: 20px;">
+
+
+        <div>
+
+            <h3>1️⃣ Detect</h3>
+
+            <p style="margin-top: 8px;">
+
+                Identify damaged, missing or insufficient
+                inventory.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>2️⃣ Decide</h3>
+
+            <p style="margin-top: 8px;">
+
+                Select the best operational response
+                based on priority and stock.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>3️⃣ Resolve</h3>
+
+            <p style="margin-top: 8px;">
+
+                Execute the corrective action and
+                update the warehouse records.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+{% endblock %}

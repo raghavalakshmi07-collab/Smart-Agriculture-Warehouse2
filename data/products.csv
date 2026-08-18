@@ -1,0 +1,16 @@
+product_id,name,category,unit,reorder_level
+P001,Rice Seeds,Seeds,Kg,50
+P002,Cotton Seeds,Seeds,Kg,40
+P003,Groundnut Seeds,Seeds,Kg,45
+P004,Urea Fertilizer,Fertilizers,Bag,30
+P005,DAP Fertilizer,Fertilizers,Bag,25
+P006,Potash Fertilizer,Fertilizers,Bag,20
+P007,Neem Pesticide,Pesticides,Litre,20
+P008,Crop Protection Spray,Pesticides,Litre,15
+P009,Organic Manure,Fertilizers,Bag,35
+P010,Drip Irrigation Kit,Irrigation,Piece,10
+P011,Hand Sprayer,Tools,Piece,12
+P012,Garden Hoe,Tools,Piece,8
+P013,Watering Can,Tools,Piece,10
+P014,Seed Treatment Powder,Crop Care,Kg,15
+P015,Bio Fertilizer,Fertilizers,Litre,20

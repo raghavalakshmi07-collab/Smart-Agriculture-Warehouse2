@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Warehouse</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            🌾 Smart Warehouse
+        </div>
+
+        <p class="warehouse-name">
+            Agriculture Supplies
+        </p>
+
+        <nav>
+
+            <a href="/dashboard">
+                🏠 Dashboard
+            </a>
+
+            <a href="/products">
+                📦 Products
+            </a>
+
+            <a href="/inventory">
+                📊 Inventory
+            </a>
+
+            <a href="/orders">
+                🛒 Orders
+            </a>
+
+            <a href="/picking">
+                👷 Picking
+            </a>
+
+            <a href="/packing">
+                📦 Packing
+            </a>
+
+            <a href="/dispatch">
+                🚚 Dispatch
+            </a>
+
+            <a href="/exceptions">
+                ⚠️ Exceptions
+            </a>
+
+            <a href="/analytics">
+                📈 Analytics
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN AREA -->
+
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+                <h2>Warehouse Operations</h2>
+                <p>Smart decision-making system</p>
+            </div>
+
+            <div class="user-info">
+                👤 Warehouse Manager
+            </div>
+
+        </header>
+
+
+        <!-- FLASH MESSAGES -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% for category, message in messages %}
+
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endwith %}
+
+
+        <!-- PAGE CONTENT -->
+
+        <section class="page-content">
+
+            {% block content %}
+
+            {% endblock %}
+
+        </section>
+
+    </main>
+
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}">
+    </script>
+
+</body>
+
+</html>

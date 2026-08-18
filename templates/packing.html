@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block title %}
+Packing | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>📦 Packing Management</h1>
+
+        <p>
+            Pack picked orders safely and prepare them
+            for quality checking.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PACKING SUMMARY
+     ===================================================== -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Orders Ready</h3>
+
+        <div class="number">
+            {{ orders|length }}
+        </div>
+
+        <p>
+            Orders waiting for packing
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Picked Orders</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('status', 'equalto', 'Picked')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Ready for packing
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>High Priority</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('priority', 'equalto', 'High')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Priority packing
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Process</h3>
+
+        <div class="number">
+            📦
+        </div>
+
+        <p>
+            Pick → Pack → Quality Check
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PACKING QUEUE
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>📋 Packing Queue</h2>
+
+            <p>
+                Orders that have completed the picking stage.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order ID</th>
+
+                    <th>Customer</th>
+
+                    <th>Priority</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for order in orders %}
+
+                <tr>
+
+
+                    <!-- ORDER ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ order.order_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- CUSTOMER -->
+
+                    <td>
+
+                        {{ order.customer }}
+
+                    </td>
+
+
+                    <!-- PRIORITY -->
+
+                    <td>
+
+                        {% if order.priority == "Urgent" %}
+
+                            <span class="priority-urgent">
+                                🔴 Urgent
+                            </span>
+
+                        {% elif order.priority == "High" %}
+
+                            <span class="priority-high">
+                                🟠 High
+                            </span>
+
+                        {% elif order.priority == "Medium" %}
+
+                            <span class="priority-medium">
+                                🟡 Medium
+                            </span>
+
+                        {% else %}
+
+                            <span class="priority-low">
+                                🟢 Low
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if order.status == "Picked" %}
+
+                            <span class="badge status-picked">
+                                Picked
+                            </span>
+
+                        {% elif order.status == "Packed" %}
+
+                            <span class="badge status-packed">
+                                Packed
+                            </span>
+
+                        {% elif order.status == "Quality Checked" %}
+
+                            <span class="badge status-packed">
+                                Quality Checked
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ order.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        {% if order.status == "Picked" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'update_status',
+                                    order_id=order.order_id,
+                                    status='Packed'
+                                ) }}"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success">
+
+                                    📦 Mark as Packed
+
+                                </button>
+
+                            </form>
+
+
+                        {% elif order.status == "Packed" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'update_status',
+                                    order_id=order.order_id,
+                                    status='Quality Checked'
+                                ) }}"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn">
+
+                                    ✅ Quality Check
+
+                                </button>
+
+                            </form>
+
+
+                        {% elif order.status == "Quality Checked" %}
+
+                            <span class="badge status-dispatched">
+
+                                ✅ Ready for Dispatch
+
+                            </span>
+
+
+                        {% else %}
+
+                            <a
+                                href="{{ url_for(
+                                    'order_details',
+                                    order_id=order.order_id
+                                ) }}"
+                                class="btn">
+
+                                View Order
+
+                            </a>
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5"
+                        style="text-align: center;">
+
+                        📦 No orders are currently waiting
+                        for packing.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PACKING WORKFLOW
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🔄 Packing Workflow</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <div>
+
+            <h3>1️⃣ Picked</h3>
+
+            <p style="margin-top: 8px;">
+
+                Products have been successfully
+                collected from the warehouse.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>2️⃣ Pack</h3>
+
+            <p style="margin-top: 8px;">
+
+                Products are packed using suitable
+                packaging materials.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>3️⃣ Verify</h3>
+
+            <p style="margin-top: 8px;">
+
+                Product quantity and order details
+                are verified.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>4️⃣ Quality Check</h3>
+
+            <p style="margin-top: 8px;">
+
+                Package is checked for damage,
+                missing items and correctness.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>5️⃣ Approve</h3>
+
+            <p style="margin-top: 8px;">
+
+                Approved orders are moved to
+                dispatch.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>6️⃣ Dispatch</h3>
+
+            <p style="margin-top: 8px;">
+
+                Final package is handed over
+                for shipment.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     EXCEPTION HANDLING
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>⚠️ Packing Exception Rules</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <div>
+
+            <h3>📦 Missing Item</h3>
+
+            <p style="margin-top: 8px;">
+
+                Stop packing and report the missing
+                product for investigation.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>⚠️ Damaged Item</h3>
+
+            <p style="margin-top: 8px;">
+
+                Separate the damaged product and
+                create an exception record.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>🔍 Wrong Item</h3>
+
+            <p style="margin-top: 8px;">
+
+                Do not dispatch. Return the item
+                to picking for correction.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}

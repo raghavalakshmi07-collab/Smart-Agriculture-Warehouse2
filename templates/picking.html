@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+
+{% block title %}
+Picking | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>👷 Picking Management</h1>
+
+        <p>
+            Process allocated orders and pick products
+            from their warehouse locations.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PICKING INFORMATION
+     ===================================================== -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Orders to Pick</h3>
+
+        <div class="number">
+            {{ orders|length }}
+        </div>
+
+        <p>
+            Orders waiting for picking
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Urgent Orders</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('priority', 'equalto', 'Urgent')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Process these first
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>High Priority</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('priority', 'equalto', 'High')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            High priority picking
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Picking Status</h3>
+
+        <div class="number">
+
+            👷
+
+        </div>
+
+        <p>
+            Warehouse picking queue
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PICKING QUEUE
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>📋 Picking Queue</h2>
+
+            <p>
+                Orders are prioritized to reduce fulfillment delays.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order ID</th>
+
+                    <th>Customer</th>
+
+                    <th>Priority</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for order in orders %}
+
+                <tr>
+
+
+                    <!-- ORDER ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ order.order_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- CUSTOMER -->
+
+                    <td>
+
+                        {{ order.customer }}
+
+                    </td>
+
+
+                    <!-- PRIORITY -->
+
+                    <td>
+
+                        {% if order.priority == "Urgent" %}
+
+                            <span class="priority-urgent">
+                                🔴 Urgent
+                            </span>
+
+                        {% elif order.priority == "High" %}
+
+                            <span class="priority-high">
+                                🟠 High
+                            </span>
+
+                        {% elif order.priority == "Medium" %}
+
+                            <span class="priority-medium">
+                                🟡 Medium
+                            </span>
+
+                        {% else %}
+
+                            <span class="priority-low">
+                                🟢 Low
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if order.status == "Allocated" %}
+
+                            <span class="badge status-allocated">
+                                Allocated
+                            </span>
+
+                        {% elif order.status == "Picking" %}
+
+                            <span class="badge status-picking">
+                                Picking
+                            </span>
+
+                        {% elif order.status == "Picked" %}
+
+                            <span class="badge status-picked">
+                                Picked
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+                                {{ order.status }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        {% if order.status == "Allocated" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'update_status',
+                                    order_id=order.order_id,
+                                    status='Picking'
+                                ) }}"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn">
+
+                                    ▶ Start Picking
+
+                                </button>
+
+                            </form>
+
+
+                        {% elif order.status == "Picking" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'update_status',
+                                    order_id=order.order_id,
+                                    status='Picked'
+                                ) }}"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success">
+
+                                    ✅ Complete Picking
+
+                                </button>
+
+                            </form>
+
+
+                        {% elif order.status == "Picked" %}
+
+                            <span class="badge status-picked">
+
+                                ✅ Picking Complete
+
+                            </span>
+
+                        {% else %}
+
+                            <a
+                                href="{{ url_for(
+                                    'order_details',
+                                    order_id=order.order_id
+                                ) }}"
+                                class="btn">
+
+                                View Order
+
+                            </a>
+
+                        {% endif %}
+
+                    </td>
+
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5"
+                        style="text-align: center;">
+
+                        🎉 No orders waiting for picking.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PICKING WORKFLOW
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>📍 Picking Process</h2>
+
+    </div>
+
+
+    <div class="grid-3">
+
+
+        <div>
+
+            <h3>1️⃣ Prioritize</h3>
+
+            <p style="margin-top: 8px;">
+
+                Urgent and high-priority orders
+                are processed first.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>2️⃣ Locate</h3>
+
+            <p style="margin-top: 8px;">
+
+                Warehouse staff identify the
+                product storage location.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>3️⃣ Pick</h3>
+
+            <p style="margin-top: 8px;">
+
+                Required quantities are picked
+                from available stock.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>4️⃣ Verify</h3>
+
+            <p style="margin-top: 8px;">
+
+                Picked products are checked
+                against the order.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>5️⃣ Complete</h3>
+
+            <p style="margin-top: 8px;">
+
+                Once picking is complete,
+                the order moves to packing.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>6️⃣ Track</h3>
+
+            <p style="margin-top: 8px;">
+
+                Order status is updated
+                throughout the workflow.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SMART PICKING DECISION
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <h2>🤖 Smart Picking Decision</h2>
+
+    </div>
+
+
+    <div class="alert alert-info">
+
+        <strong>
+            Decision Rule:
+        </strong>
+
+        <p style="margin-top: 8px;">
+
+            Process <strong>Urgent</strong> orders first,
+            followed by <strong>High</strong>,
+            <strong>Medium</strong> and
+            <strong>Low</strong> priority orders.
+
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

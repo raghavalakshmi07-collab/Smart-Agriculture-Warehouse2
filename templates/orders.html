@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block title %}
+Orders | Smart Warehouse
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+
+<div class="topbar">
+
+    <div>
+
+        <h1>🛒 Order Management</h1>
+
+        <p>
+            Manage, prioritize and track all warehouse orders.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER SUMMARY
+     ===================================================== -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <h3>Total Orders</h3>
+
+        <div class="number">
+            {{ orders|length }}
+        </div>
+
+        <p>
+            Orders in the system
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Urgent Orders</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('priority', 'equalto', 'Urgent')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Highest priority
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>High Priority</h3>
+
+        <div class="number">
+
+            {{ orders
+               |selectattr('priority', 'equalto', 'High')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Priority orders
+        </p>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <h3>Pending</h3>
+
+        <div class="number">
+
+            {{ orders
+               |rejectattr('status', 'equalto', 'Dispatched')
+               |list
+               |length }}
+
+        </div>
+
+        <p>
+            Awaiting completion
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDERS TABLE
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>📋 All Orders</h2>
+
+            <p>
+                Orders sorted and managed by priority.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order ID</th>
+
+                    <th>Customer</th>
+
+                    <th>Priority</th>
+
+                    <th>Status</th>
+
+                    <th>Order Date</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for order in orders %}
+
+                <tr>
+
+
+                    <!-- ORDER ID -->
+
+                    <td>
+
+                        <strong>
+                            {{ order.order_id }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- CUSTOMER -->
+
+                    <td>
+
+                        {{ order.customer }}
+
+                    </td>
+
+
+                    <!-- PRIORITY -->
+
+                    <td>
+
+                        {% if order.priority == "Urgent" %}
+
+                            <span class="priority-urgent">
+
+                                🔴 Urgent
+
+                            </span>
+
+                        {% elif order.priority == "High" %}
+
+                            <span class="priority-high">
+
+                                🟠 High
+
+                            </span>
+
+                        {% elif order.priority == "Medium" %}
+
+                            <span class="priority-medium">
+
+                                🟡 Medium
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="priority-low">
+
+                                🟢 Low
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if order.status == "Created" %}
+
+                            <span class="badge status-created">
+
+                                Created
+
+                            </span>
+
+                        {% elif order.status == "Allocated" %}
+
+                            <span class="badge status-allocated">
+
+                                Allocated
+
+                            </span>
+
+                        {% elif order.status == "Picking" %}
+
+                            <span class="badge status-picking">
+
+                                Picking
+
+                            </span>
+
+                        {% elif order.status == "Picked" %}
+
+                            <span class="badge status-picked">
+
+                                Picked
+
+                            </span>
+
+                        {% elif order.status == "Packed" %}
+
+                            <span class="badge status-packed">
+
+                                Packed
+
+                            </span>
+
+                        {% elif order.status == "Quality Checked" %}
+
+                            <span class="badge status-packed">
+
+                                Quality Checked
+
+                            </span>
+
+                        {% elif order.status == "Dispatched" %}
+
+                            <span class="badge status-dispatched">
+
+                                Dispatched
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge">
+
+                                {{ order.status }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        {{ order.order_date }}
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'order_details',
+                                order_id=order.order_id
+                            ) }}"
+                            class="btn">
+
+                            View Details
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="6"
+                        style="text-align: center;">
+
+                        No orders found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ORDER PRIORITY EXPLANATION
+     ===================================================== -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div>
+
+            <h2>🧠 Smart Order Prioritization</h2>
+
+            <p>
+                The warehouse uses priority levels to decide
+                which orders should be processed first.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid-2">
+
+
+        <div>
+
+            <h3 class="priority-urgent">
+                🔴 Urgent
+            </h3>
+
+            <p style="margin-top: 8px;">
+
+                Orders requiring immediate attention.
+                These are processed before other orders.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 class="priority-high">
+                🟠 High
+            </h3>
+
+            <p style="margin-top: 8px;">
+
+                Important orders that should be processed
+                before normal priority orders.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 class="priority-medium">
+                🟡 Medium
+            </h3>
+
+            <p style="margin-top: 8px;">
+
+                Normal operational orders handled after
+                urgent and high-priority orders.
+
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 class="priority-low">
+                🟢 Low
+            </h3>
+
+            <p style="margin-top: 8px;">
+
+                Orders that can be processed when higher
+                priority work is completed.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
